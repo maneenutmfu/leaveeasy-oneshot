@@ -19,6 +19,12 @@ desktop.ini
 .idea/
 .obsidian/
 
+# ไฟล์ที่ Playwright MCP สร้างระหว่างทดสอบ (screenshot/console log ของแต่ละรอบ ไม่ใช่ของโปรเจกต์)
+.playwright-mcp/
+
+# ตั้งค่า Claude Code เฉพาะเครื่อง ไม่ควรแชร์ร่วมกัน
+.claude/settings.local.json
+
 
 # ── ไฟล์ตั้งค่าและไฟล์ที่มีคีย์/ความลับ (ห้ามส่งขึ้น GitHub เด็ดขาด) ──
 # ตัวแปรสภาพแวดล้อม

@@ -1,6 +1,7 @@
 # 🔧 LeaveEasy — จุดเริ่มต้นของใบงาน
 
-🌐 **เว็บออนไลน์:** https://leaveeasy-3e8db.web.app/login.html
+🌐 **เว็บออนไลน์:** https://leaveeasy-oneshot-82d59.web.app/
+🧪 **ผลการทดสอบล่าสุด:** [test-results.md](./test-results.md)
 
 **ผู้จัดทำ:** มณีนุช ผุสดี
 
