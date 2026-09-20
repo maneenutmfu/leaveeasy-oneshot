@@ -4,6 +4,7 @@
 //   US-04 เปลี่ยนสถานะ (อนุมัติ / ไม่อนุมัติ) — แก้เฉพาะช่อง status
 //   US-05 เขียนความเห็นการอนุมัติ ลงโฟลเดอร์ย่อย approvals
 //   US-07 ลบใบลาของตัวเอง (เฉพาะสถานะ รอพิจารณา)
+//   สัปดาห์ที่ 8 — AI ช่วยสรุปใบลาให้หัวหน้าอ่านก่อนกดอนุมัติ (ช่อง aiSuggestion + โฟลเดอร์ย่อย aiLog)
 //
 // ใช้ฟังก์ชัน global จาก js/util.js, js/nav.js, js/auth-guard.js ตรง ๆ ไม่ import
 // เพราะสคริปต์เหล่านั้นโหลดแบบ <script defer> ธรรมดา (ดู CLAUDE.md)
@@ -28,6 +29,9 @@ import {
   var กล่องการดำเนินการ = document.getElementById("กล่องการดำเนินการ");
   var กล่องความเห็น = document.getElementById("กล่องความเห็น");
   var รายการความเห็นEl = document.getElementById("รายการความเห็น");
+  var เนื้อหาสรุปAI = document.getElementById("เนื้อหาสรุปAI");
+  var ปุ่มสรุปAI = document.getElementById("ปุ่มสรุปAI");
+  var ข้อความปุ่มสรุปAIปกติ = ปุ่มสรุปAI ? ปุ่มสรุปAI.textContent : "ให้ AI ช่วยสรุปใบลา";
 
   var ผู้ใช้ = await รอผู้ใช้ล็อกอิน();
   var บทบาท = await รอบทบาทผู้ใช้();
@@ -73,8 +77,10 @@ import {
       วาดรายละเอียด();
       วาดปุ่มดำเนินการ();
       วาดความเห็น();
+      วาดสรุปAI();
       กล่องความเห็น.style.display = "";
       ผูกเหตุการณ์ส่งความเห็น();
+      ผูกเหตุการณ์สรุปAI();
     } catch (ข้อผิดพลาด) {
       กล่องรายละเอียดใบลา.innerHTML =
         "<p>โหลดข้อมูลใบลาไม่สำเร็จ: " + esc(ข้อผิดพลาด.message) + "</p>";
@@ -295,6 +301,116 @@ import {
       alert("ส่งความเห็นไม่สำเร็จ: " + ข้อผิดพลาด.message);
     } finally {
       ปุ่มส่งความเห็น.disabled = false;
+    }
+  }
+
+  // ── วาดส่วน "สรุปจาก AI" ตามช่อง aiSuggestion ของใบลา (สัปดาห์ที่ 8) ──
+  function วาดสรุปAI() {
+    if (!เนื้อหาสรุปAI) return;
+    if (ใบลา.aiSuggestion) {
+      เนื้อหาสรุปAI.innerHTML =
+        "<p><strong>ข้อเสนอจาก AI — โปรดตรวจสอบก่อนตัดสินใจ</strong></p>" +
+        "<p>" + esc(ใบลา.aiSuggestion) + "</p>";
+    } else {
+      เนื้อหาสรุปAI.innerHTML = "<p>ยังไม่มีสรุปจาก AI</p>";
+    }
+  }
+
+  function ผูกเหตุการณ์สรุปAI() {
+    if (ปุ่มสรุปAI) {
+      ปุ่มสรุปAI.addEventListener("click", เรียกAIสรุปใบลา);
+    }
+  }
+
+  // ── กดปุ่ม "ให้ AI ช่วยสรุปใบลา" — เรียก OpenRouter แล้วบันทึกผลลง aiSuggestion + aiLog เสมอ ──
+  // เห็นปุ่มนี้เฉพาะ manager/hr (data-roles="manager,hr" ในหน้า HTML + ปรับเมนูตามบทบาท() ช่วยซ่อน)
+  // แก้เฉพาะช่อง aiSuggestion เท่านั้น ห้ามแตะช่องอื่นของ leaveRequests (ตรงกับ firestore.rules)
+  async function เรียกAIสรุปใบลา() {
+    if (!ปุ่มสรุปAI || ปุ่มสรุปAI.disabled) return;
+
+    ปุ่มสรุปAI.disabled = true;
+    ปุ่มสรุปAI.textContent = "กำลังสรุป...";
+
+    if (!window.OPENROUTER_API_KEY) {
+      alert("ยังไม่ได้ตั้งค่าคีย์ OpenRouter (window.OPENROUTER_API_KEY) — กรุณาตั้งค่าก่อนใช้งาน AI สรุปใบลา");
+      ปุ่มสรุปAI.disabled = false;
+      ปุ่มสรุปAI.textContent = ข้อความปุ่มสรุปAIปกติ;
+      return;
+    }
+
+    var ข้อความที่ส่งให้AI =
+      "ช่วยสรุปใบลาต่อไปนี้สั้น ๆ 2-3 ประโยค เป็นภาษาไทย ให้หัวหน้าอ่านก่อนตัดสินใจอนุมัติหรือไม่อนุมัติ:\n" +
+      "หัวข้อ: " + (ใบลา.title || "") + "\n" +
+      "ประเภทการลา: " + (ใบลา.leaveTypeName || "") + "\n" +
+      "ช่วงวันที่: " + (ใบลา.startDate || "") + " ถึง " + (ใบลา.endDate || "") + "\n" +
+      "เหตุผล: " + (ใบลา.reason || "");
+
+    var ผลลัพธ์AI = null;
+    var ข้อความข้อผิดพลาด = null;
+
+    var ตัวควบคุมยกเลิก = new AbortController();
+    var ตัวจับเวลา = setTimeout(function () {
+      ตัวควบคุมยกเลิก.abort();
+    }, 15000);
+
+    try {
+      var การตอบกลับ = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + window.OPENROUTER_API_KEY
+        },
+        body: JSON.stringify({
+          model: window.OPENROUTER_MODEL,
+          messages: [{ role: "user", content: ข้อความที่ส่งให้AI }]
+        }),
+        signal: ตัวควบคุมยกเลิก.signal
+      });
+
+      if (!การตอบกลับ.ok) {
+        throw new Error("เรียก AI ไม่สำเร็จ (HTTP " + การตอบกลับ.status + ")");
+      }
+
+      var ข้อมูลตอบกลับ = await การตอบกลับ.json();
+      ผลลัพธ์AI =
+        ข้อมูลตอบกลับ &&
+        ข้อมูลตอบกลับ.choices &&
+        ข้อมูลตอบกลับ.choices[0] &&
+        ข้อมูลตอบกลับ.choices[0].message &&
+        ข้อมูลตอบกลับ.choices[0].message.content;
+      ผลลัพธ์AI = (ผลลัพธ์AI || "").trim();
+
+      if (!ผลลัพธ์AI) {
+        throw new Error("AI ไม่ได้ตอบข้อความสรุปกลับมา");
+      }
+
+      // แก้เฉพาะช่อง aiSuggestion เท่านั้น (firestore.rules อนุญาตเฉพาะช่องนี้ในกรณีนี้)
+      await updateDoc(doc(db, "leaveRequests", รหัสใบลา), { aiSuggestion: ผลลัพธ์AI });
+      ใบลา.aiSuggestion = ผลลัพธ์AI;
+      วาดสรุปAI();
+    } catch (ข้อผิดพลาด) {
+      ข้อความข้อผิดพลาด =
+        ข้อผิดพลาด && ข้อผิดพลาด.name === "AbortError"
+          ? "หมดเวลารอคำตอบจาก AI (เกิน 15 วินาที) กรุณาลองใหม่อีกครั้ง"
+          : "เรียก AI สรุปใบลาไม่สำเร็จ: " +
+            (ข้อผิดพลาด && ข้อผิดพลาด.message ? ข้อผิดพลาด.message : String(ข้อผิดพลาด));
+      alert(ข้อความข้อผิดพลาด);
+    } finally {
+      clearTimeout(ตัวจับเวลา);
+
+      // บันทึกทุกครั้งที่เรียก AI ไม่ว่าสำเร็จหรือล้มเหลว (audit log — ห้ามแก้/ลบภายหลัง)
+      try {
+        await addDoc(collection(db, "leaveRequests", รหัสใบลา, "aiLog"), {
+          input: ข้อความที่ส่งให้AI,
+          output: ผลลัพธ์AI || ข้อความข้อผิดพลาด || "ไม่ทราบสาเหตุ",
+          createdAt: เวลาตอนนี้()
+        });
+      } catch (ข้อผิดพลาดบันทึกล็อก) {
+        // การบันทึกล็อกล้มเหลว ไม่ควรทำให้หน้าใช้งานต่อไม่ได้ ปล่อยผ่านเงียบ ๆ
+      }
+
+      ปุ่มสรุปAI.disabled = false;
+      ปุ่มสรุปAI.textContent = ข้อความปุ่มสรุปAIปกติ;
     }
   }
 

@@ -18,6 +18,14 @@
 
     <div id="กล่องการดำเนินการ"></div>
 
+    <div id="กล่องสรุปAI">
+      <h2>สรุปจาก AI</h2>
+      <div id="เนื้อหาสรุปAI"><p>ยังไม่มีสรุปจาก AI</p></div>
+      <p data-roles="manager,hr">
+        <button type="button" class="btn btn-secondary" id="ปุ่มสรุปAI">ให้ AI ช่วยสรุปใบลา</button>
+      </p>
+    </div>
+
     <div id="กล่องความเห็น" style="display:none;">
       <h2>ความเห็นการอนุมัติ</h2>
       <div id="รายการความเห็น"></div>
@@ -40,6 +48,7 @@
   <script defer src="js/nav.js"></script>
   <script defer src="js/acl.js"></script>
   <script defer src="js/auth-guard.js"></script>
+  <script src="openrouter-key.local.js"></script>
   <script type="module" src="js/leave-request-detail.js"></script>
 </body>
 </html>

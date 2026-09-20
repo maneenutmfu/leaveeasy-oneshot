@@ -85,6 +85,11 @@ service cloud.firestore {
           role() == 'hr'
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approverId', 'approverName'])
         )
+        // 3) manager/hr บันทึกสรุปใบลาจาก AI (US-09 ส่วนสรุปให้หัวหน้าอ่าน) — แก้เฉพาะช่อง aiSuggestion เท่านั้น
+        || (
+          isManagerOrHr()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['aiSuggestion'])
+        )
       );
 
       // ลบได้เฉพาะเจ้าของใบเอง และเฉพาะใบที่สถานะยังเป็น "รอพิจารณา" เท่านั้น
@@ -111,6 +116,15 @@ service cloud.firestore {
           );
 
         // ไม่มีฟีเจอร์แก้/ลบความเห็นในสเปกนี้
+        allow update, delete: if false;
+      }
+
+      // ── leaveRequests/{requestId}/aiLog — ประวัติการเรียก AI สรุปใบลา (US-09) ────
+      // เขียนได้เฉพาะ manager/hr (คนเดียวที่มีปุ่มเรียก AI สรุปใบลา) · อ่านได้เฉพาะสองบทบาทนี้เช่นกัน
+      // เขียนแล้วแก้ไข/ลบไม่ได้ (audit log)
+      match /aiLog/{logId} {
+        allow read: if isManagerOrHr();
+        allow create: if isManagerOrHr();
         allow update, delete: if false;
       }
     }

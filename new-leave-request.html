@@ -21,6 +21,8 @@
       <div class="form-group">
         <label for="ช่องเหตุผล">เหตุผลการลา</label>
         <textarea id="ช่องเหตุผล" name="reason" rows="4" placeholder="อธิบายเหตุผลการลาโดยละเอียด" required></textarea>
+        <button type="button" class="btn btn-secondary" id="ปุ่มAIจัดประเภท">ให้ AI ช่วยจัดประเภทการลา</button>
+        <p id="ข้อความAI" class="form-hint" style="display:none;"></p>
       </div>
 
       <div class="form-group">
@@ -28,6 +30,7 @@
         <select id="ช่องประเภทการลา" name="leaveTypeId" required>
           <option value="">กำลังโหลดประเภทการลา...</option>
         </select>
+        <p id="ป้ายข้อเสนอAI" class="form-hint" style="display:none;">ข้อเสนอจาก AI — โปรดตรวจสอบก่อนยืนยัน</p>
       </div>
 
       <div class="form-group">
@@ -53,6 +56,7 @@
   <script defer src="js/nav.js"></script>
   <script defer src="js/acl.js"></script>
   <script defer src="js/auth-guard.js"></script>
+  <script src="openrouter-key.local.js"></script>
   <script type="module" src="js/new-leave-request.js"></script>
 </body>
 </html>
