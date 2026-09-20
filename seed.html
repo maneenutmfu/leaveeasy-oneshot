@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ใส่ข้อมูลตัวอย่าง · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>ใส่ข้อมูลตัวอย่าง (Seed)</h1>
+      <p>
+        หน้านี้ใช้ใส่ข้อมูลตัวอย่างตาม <code>leaveeasy-spec.md</code> หัวข้อ 7 ลง Firestore ครั้งเดียว
+        (ผู้ใช้ 3 คน · ประเภทการลา 3 แบบ · ใบขอลา 5 ใบ · ความเห็นการอนุมัติ 4 รายการ)
+        ไม่ได้เป็นส่วนหนึ่งของการใช้งานปกติของระบบ
+      </p>
+      <p class="hint">
+        ⚠️ ข้อมูลชุดนี้มีใบลาที่สร้างมาพร้อมสถานะ "อนุมัติ"/"ไม่อนุมัติ" ไว้แล้ว (<code>lr002</code>, <code>lr004</code>)
+        และผู้ใช้ตัวอย่างมีรหัสไฟล์คงที่ (<code>u001</code>–<code>u003</code>) ซึ่งไม่ตรงกับ uid ของบัญชีที่ล็อกอินจริง —
+        ถ้า <code>firestore.rules</code> เป็นกฎรายบทบาทที่รัดกุมอยู่ (ค่าเริ่มต้นของโปรเจกต์นี้) ปุ่มนี้จะเขียนไม่ผ่านบางรายการโดยตั้งใจ
+        (เพราะกฎบังคับว่าสร้างใบลาใหม่ต้องเป็นของ uid ตัวเอง และต้องเริ่มที่สถานะ "รอพิจารณา" เท่านั้น)
+        ให้เปลี่ยน <code>firestore.rules</code> เป็นแบบเปิดกว้างชั่วคราว (เช่น <code>allow read, write: if true;</code>)
+        ก่อนกดใส่ข้อมูล แล้วค่อยเปลี่ยนกลับไปใช้กฎรายบทบาทที่รัดกุมสำหรับการใช้งานจริงหลังจากนั้น
+      </p>
+      <button type="button" id="ปุ่มใส่ข้อมูลตัวอย่าง" class="btn btn-primary">ใส่ข้อมูลตัวอย่าง</button>
+      <div id="ผลลัพธ์การใส่ข้อมูล" class="seed-results"></div>
+      <p class="auth-switch"><a href="index.html">‹ กลับหน้าแรก</a></p>
+    </div>
+  </div>
+
+  <script defer src="js/data.js"></script>
+  <script type="module" src="js/seed.js"></script>
+</body>
+</html>

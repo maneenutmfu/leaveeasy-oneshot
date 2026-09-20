@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ประเภทการลา · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <h1>จัดการประเภทการลา</h1>
+
+    <div id="กล่องไม่มีสิทธิ์" style="display:none;">
+      <p>คุณไม่มีสิทธิ์เข้าหน้านี้ — จัดการประเภทการลาได้เฉพาะฝ่ายบุคคลเท่านั้น</p>
+      <p><a class="btn btn-secondary" href="index.html">กลับไปหน้าแรก</a></p>
+    </div>
+
+    <div id="กล่องเนื้อหา" style="display:none;">
+      <div class="form-group">
+        <label for="ช่องชื่อประเภทใหม่">ชื่อประเภทการลาใหม่</label>
+        <input type="text" id="ช่องชื่อประเภทใหม่" placeholder="เช่น ลาคลอด">
+      </div>
+      <p>
+        <button type="button" class="btn btn-primary" id="ปุ่มเพิ่มประเภท">เพิ่มประเภทการลา</button>
+      </p>
+
+      <p id="ข้อความข้อผิดพลาด" class="form-error" style="display:none;"></p>
+
+      <div id="กล่องตารางประเภทการลา">
+        <p>กำลังโหลดข้อมูล...</p>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="js/util.js"></script>
+  <script defer src="js/nav.js"></script>
+  <script defer src="js/acl.js"></script>
+  <script defer src="js/auth-guard.js"></script>
+  <script type="module" src="js/leave-types.js"></script>
+</body>
+</html>

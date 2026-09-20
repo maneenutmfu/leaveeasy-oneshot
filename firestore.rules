@@ -1,0 +1,123 @@
+rules_version = '2';
+
+// firestore.rules — กฎเฝ้าข้อมูลรายบทบาทของระบบ LeaveEasy
+// อิงตาม leaveeasy-spec.md หัวข้อ 2 (บทบาท) · หัวข้อ 5 (โครงสร้างข้อมูล) · หัวข้อ 6 (สถานะและการเปลี่ยนสถานะ)
+//
+// หลักการ:
+//   - ต้องล็อกอินก่อนเสมอ ถึงจะอ่าน/เขียนอะไรได้
+//   - employee เห็นเฉพาะใบลาของตัวเอง · manager/hr เห็นทุกใบ
+//   - เปลี่ยนสถานะใบลาได้เฉพาะ manager/hr และเปลี่ยนได้ทางเดียว (รอพิจารณา -> อนุมัติ/ไม่อนุมัติ)
+//     และแก้ได้เฉพาะช่อง status เท่านั้น
+//   - ลบใบลาได้เฉพาะเจ้าของใบเอง และเฉพาะใบที่สถานะยังเป็นรอพิจารณา
+//   - leaveTypes แก้ได้เฉพาะ hr
+//   - โฟลเดอร์ย่อย approvals อิงสิทธิ์ตามใบลาต้นทาง
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // อ่านบทบาท (role) ของผู้ใช้ที่ล็อกอินอยู่ จากไฟล์ users/{uid}
+    function role() {
+      return isSignedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isManagerOrHr() {
+      return role() == 'manager' || role() == 'hr';
+    }
+
+    // ── users ────────────────────────────────────────────────
+    match /users/{userId} {
+      // ทุกคนที่ล็อกอินแล้วอ่านโปรไฟล์ผู้ใช้ได้ (ใช้แสดงชื่อ/เลือกผู้อนุมัติ) — ไม่มีข้อมูลอ่อนไหวเก็บที่นี่
+      allow read: if isSignedIn();
+
+      // สมัครสมาชิก: สร้างได้เฉพาะไฟล์ของตัวเอง (uid ตรงกับชื่อไฟล์) และ role ต้องเป็น "employee" เสมอ
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == 'employee';
+
+      // แก้ไขได้เฉพาะไฟล์ของตัวเอง และห้ามเปลี่ยนค่า role หลังสร้างแล้ว
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role;
+
+      allow delete: if false;
+    }
+
+    // ── leaveTypes ───────────────────────────────────────────
+    match /leaveTypes/{typeId} {
+      // ทุกคนที่ล็อกอินแล้วอ่านได้ (ใช้เติมดรอปดาวน์ในหน้ายื่นใบลา)
+      allow read: if isSignedIn();
+
+      // เพิ่ม/แก้/ลบ ได้เฉพาะฝ่ายบุคคล (hr)
+      allow write: if isSignedIn() && role() == 'hr';
+    }
+
+    // ── leaveRequests ────────────────────────────────────────
+    match /leaveRequests/{requestId} {
+      // employee เห็นเฉพาะใบของตัวเอง (ต้อง query ด้วย where requesterId == uid ฝั่งแอป)
+      // manager/hr เห็นทุกใบ
+      allow read: if isSignedIn()
+        && (isManagerOrHr() || resource.data.requesterId == request.auth.uid);
+
+      // สร้างใบใหม่ได้เฉพาะของตัวเอง (requesterId ต้องตรงกับ uid ที่ล็อกอินอยู่)
+      // และสถานะเริ่มต้นต้องเป็น "รอพิจารณา" เสมอ ห้ามสร้างมาพร้อมสถานะอื่น
+      allow create: if isSignedIn()
+        && request.resource.data.requesterId == request.auth.uid
+        && request.resource.data.status == 'รอพิจารณา';
+
+      // แก้ไขได้ 2 กรณีเท่านั้น:
+      //   1) manager/hr เปลี่ยนสถานะ — ใบต้องเป็น "รอพิจารณา" อยู่ก่อน เปลี่ยนไปเป็น "อนุมัติ"/"ไม่อนุมัติ" เท่านั้น
+      //      (เปลี่ยนได้ทางเดียว ห้ามย้อนกลับ) และแก้เฉพาะช่อง status ห้ามแตะช่องอื่น
+      //   2) hr กำหนด/เปลี่ยนผู้อนุมัติ — แก้เฉพาะช่อง approverId + approverName เท่านั้น
+      allow update: if isSignedIn() && (
+        (
+          isManagerOrHr()
+          && resource.data.status == 'รอพิจารณา'
+          && request.resource.data.status in ['อนุมัติ', 'ไม่อนุมัติ']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        )
+        || (
+          role() == 'hr'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approverId', 'approverName'])
+        )
+      );
+
+      // ลบได้เฉพาะเจ้าของใบเอง และเฉพาะใบที่สถานะยังเป็น "รอพิจารณา" เท่านั้น
+      allow delete: if isSignedIn()
+        && resource.data.requesterId == request.auth.uid
+        && resource.data.status == 'รอพิจารณา';
+
+      // ── leaveRequests/{requestId}/approvals — ความเห็นการอนุมัติ ────
+      match /approvals/{approvalId} {
+        // อ่านได้ถ้ามีสิทธิ์เห็นใบลาต้นทาง (เจ้าของใบ หรือ manager/hr)
+        allow read: if isSignedIn() && (
+          isManagerOrHr()
+          || get(/databases/$(database)/documents/leaveRequests/$(requestId)).data.requesterId == request.auth.uid
+        );
+
+        // เขียนความเห็นได้ถ้ามีสิทธิ์เห็นใบลาต้นทางเช่นกัน ต้องระบุตัวเองเป็นผู้เขียน และข้อความห้ามว่าง
+        allow create: if isSignedIn()
+          && request.resource.data.authorId == request.auth.uid
+          && request.resource.data.message is string
+          && request.resource.data.message.size() > 0
+          && (
+            isManagerOrHr()
+            || get(/databases/$(database)/documents/leaveRequests/$(requestId)).data.requesterId == request.auth.uid
+          );
+
+        // ไม่มีฟีเจอร์แก้/ลบความเห็นในสเปกนี้
+        allow update, delete: if false;
+      }
+    }
+
+    // ปิดกั้นทุกอย่างที่ไม่ตรงกับกฎด้านบนโดยตั้งใจ (เช่น aiLog ที่ยังไม่อยู่ในขอบเขตของ build นี้)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

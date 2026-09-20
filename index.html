@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeaveEasy · ระบบขอลาออนไลน์</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <h1>🔧 LeaveEasy</h1>
+      <p class="hero-subtitle">
+        ระบบขอลาออนไลน์ — รวมทุกใบลาไว้ที่เดียว พนักงานยื่นใบลาผ่านหน้าเว็บ
+        หัวหน้าพิจารณาอนุมัติหรือไม่อนุมัติ แล้วผลถูกบันทึกไว้ให้ทุกฝ่ายเปิดดูย้อนหลังได้
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="login.html">เข้าสู่ระบบ</a>
+        <a class="btn btn-secondary" href="signup.html">สมัครสมาชิก</a>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>ไปยังหน้าต่าง ๆ ของระบบ</h2>
+      <p class="hint">(ต้องเข้าสู่ระบบก่อน จึงจะเปิดใช้งานหน้าเหล่านี้ได้)</p>
+      <div class="page-links">
+        <a class="card page-link" href="leave-requests.html">
+          <strong>📋 รายการใบลา</strong>
+          <span>ดูใบขอลาทั้งหมด กดที่แถวเพื่อดูรายละเอียด</span>
+        </a>
+        <a class="card page-link" href="new-leave-request.html">
+          <strong>📝 ยื่นใบลาใหม่</strong>
+          <span>กรอกฟอร์มขอลา เลือกประเภทและวันที่</span>
+        </a>
+        <a class="card page-link" href="leave-types.html">
+          <strong>🗂️ จัดการประเภทการลา</strong>
+          <span>เพิ่ม แก้ไข ลบ ประเภทการลา (ฝ่ายบุคคล)</span>
+        </a>
+        <a class="card page-link" href="dashboard.html">
+          <strong>📊 แดชบอร์ดสรุป</strong>
+          <span>ภาพรวมจำนวนใบลาตามสถานะ (ฝ่ายบุคคล)</span>
+        </a>
+      </div>
+      <p class="hint">
+        รายละเอียดใบลาแต่ละใบ (<code>leave-request-detail.html</code>) เปิดได้จากการกดแถวในหน้ารายการใบลา
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>บทบาทผู้ใช้ 3 แบบ</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>บทบาท</th>
+            <th>ทำอะไรได้บ้าง</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🙋 ผู้ขอลา (<code>employee</code>)</td>
+            <td>ยื่นใบขอลาใหม่ · ดูใบลาของตัวเอง · เขียนความเห็นในใบของตัวเอง · ลบใบของตัวเองที่ยังรอพิจารณา</td>
+          </tr>
+          <tr>
+            <td>✅ ผู้อนุมัติ (<code>manager</code>)</td>
+            <td>ดูใบลาทุกใบ · เปลี่ยนสถานะใบลา (อนุมัติ/ไม่อนุมัติ) · เขียนความเห็นในทุกใบ</td>
+          </tr>
+          <tr>
+            <td>🧾 ฝ่ายบุคคล (<code>hr</code>)</td>
+            <td>ทำได้ทุกอย่างที่ผู้อนุมัติทำได้ · กำหนดผู้อนุมัติให้แต่ละใบ · จัดการประเภทการลา · ดูแดชบอร์ดสรุป</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>สถานะใบลา 3 แบบ</h2>
+      <p id="คำอธิบายสถานะ"></p>
+    </section>
+  </div>
+
+  <script defer src="js/util.js"></script>
+  <script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+      const กล่อง = document.getElementById("คำอธิบายสถานะ");
+      if (กล่อง && window.ป้ายสถานะ) {
+        กล่อง.innerHTML =
+          window.ป้ายสถานะ("รอพิจารณา") +
+          " ยื่นเข้าระบบแล้ว รอผู้อนุมัติพิจารณา &nbsp;·&nbsp; " +
+          window.ป้ายสถานะ("อนุมัติ") +
+          " อนุมัติให้ลาได้แล้ว (ปลายทาง) &nbsp;·&nbsp; " +
+          window.ป้ายสถานะ("ไม่อนุมัติ") +
+          " ไม่อนุมัติให้ลา (ปลายทาง)";
+      }
+    });
+  </script>
+</body>
+</html>

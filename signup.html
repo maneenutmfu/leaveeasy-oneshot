@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สมัครสมาชิก · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container container-narrow">
+    <div class="card auth-card">
+      <h1>🔧 LeaveEasy</h1>
+      <h2>สมัครสมาชิก</h2>
+      <form id="ฟอร์มสมัครสมาชิก" novalidate>
+        <div class="form-group">
+          <label for="ชื่อ">ชื่อ-นามสกุล</label>
+          <input type="text" id="ชื่อ" name="ชื่อ" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="อีเมล">อีเมล</label>
+          <input type="email" id="อีเมล" name="อีเมล" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="รหัสผ่าน">รหัสผ่าน</label>
+          <input type="password" id="รหัสผ่าน" name="รหัสผ่าน" required autocomplete="new-password" />
+          <p class="form-hint">อย่างน้อย 6 ตัวอักษร</p>
+        </div>
+        <div class="form-group">
+          <label for="ยืนยันรหัสผ่าน">ยืนยันรหัสผ่าน</label>
+          <input type="password" id="ยืนยันรหัสผ่าน" name="ยืนยันรหัสผ่าน" required autocomplete="new-password" />
+        </div>
+        <p id="ข้อความแจ้งเตือน" class="form-error" hidden></p>
+        <button type="submit" class="btn btn-primary" id="ปุ่มสมัครสมาชิก">สมัครสมาชิก</button>
+      </form>
+      <p class="hint">บัญชีที่สมัครใหม่จะได้บทบาทเริ่มต้นเป็น "ผู้ขอลา" (employee) เสมอ</p>
+      <p class="auth-switch">มีบัญชีอยู่แล้ว? <a href="login.html">เข้าสู่ระบบ</a></p>
+      <p class="auth-switch"><a href="index.html">‹ กลับหน้าแรก</a></p>
+    </div>
+  </div>
+
+  <script type="module" src="js/signup.js"></script>
+</body>
+</html>

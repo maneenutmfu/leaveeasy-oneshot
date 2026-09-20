@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เข้าสู่ระบบ · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container container-narrow">
+    <div class="card auth-card">
+      <h1>🔧 LeaveEasy</h1>
+      <h2>เข้าสู่ระบบ</h2>
+      <form id="ฟอร์มล็อกอิน" novalidate>
+        <div class="form-group">
+          <label for="อีเมล">อีเมล</label>
+          <input type="email" id="อีเมล" name="อีเมล" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="รหัสผ่าน">รหัสผ่าน</label>
+          <input type="password" id="รหัสผ่าน" name="รหัสผ่าน" required autocomplete="current-password" />
+        </div>
+        <p id="ข้อความแจ้งเตือน" class="form-error" hidden></p>
+        <button type="submit" class="btn btn-primary" id="ปุ่มล็อกอิน">เข้าสู่ระบบ</button>
+      </form>
+      <p class="auth-switch">ยังไม่มีบัญชี? <a href="signup.html">สมัครสมาชิก</a></p>
+      <p class="auth-switch"><a href="index.html">‹ กลับหน้าแรก</a></p>
+    </div>
+  </div>
+
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

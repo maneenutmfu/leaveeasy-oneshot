@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ยื่นใบลาใหม่ · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <h1>ยื่นใบลาใหม่</h1>
+
+    <form id="ฟอร์มยื่นใบลา">
+      <div class="form-group">
+        <label for="ช่องหัวข้อ">หัวข้อ</label>
+        <input type="text" id="ช่องหัวข้อ" name="title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="ช่องเหตุผล">เหตุผลการลา</label>
+        <textarea id="ช่องเหตุผล" name="reason" rows="4" placeholder="อธิบายเหตุผลการลาโดยละเอียด" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="ช่องประเภทการลา">ประเภทการลา</label>
+        <select id="ช่องประเภทการลา" name="leaveTypeId" required>
+          <option value="">กำลังโหลดประเภทการลา...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="ช่องวันที่เริ่มลา">วันที่เริ่มลา</label>
+        <input type="date" id="ช่องวันที่เริ่มลา" name="startDate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="ช่องวันที่สิ้นสุด">วันที่สิ้นสุด</label>
+        <input type="date" id="ช่องวันที่สิ้นสุด" name="endDate" required>
+      </div>
+
+      <p id="ข้อความข้อผิดพลาด" class="form-error" style="display:none;"></p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="ปุ่มบันทึก">บันทึก</button>
+        <button type="button" class="btn btn-secondary" id="ปุ่มยกเลิก">ยกเลิก</button>
+      </div>
+    </form>
+  </div>
+
+  <script defer src="js/util.js"></script>
+  <script defer src="js/nav.js"></script>
+  <script defer src="js/acl.js"></script>
+  <script defer src="js/auth-guard.js"></script>
+  <script type="module" src="js/new-leave-request.js"></script>
+</body>
+</html>

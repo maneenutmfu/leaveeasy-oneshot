@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายการใบลา · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <h1>รายการใบลา</h1>
+
+    <p>
+      <a class="btn btn-primary" href="new-leave-request.html">ยื่นใบลาใหม่</a>
+    </p>
+
+    <div id="กล่องรายการใบลา">
+      <p>กำลังโหลดข้อมูล...</p>
+    </div>
+  </div>
+
+  <script defer src="js/util.js"></script>
+  <script defer src="js/nav.js"></script>
+  <script defer src="js/acl.js"></script>
+  <script defer src="js/auth-guard.js"></script>
+  <script type="module" src="js/leave-requests.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายละเอียดใบลา · LeaveEasy</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <h1>รายละเอียดใบลา</h1>
+
+    <div id="กล่องรายละเอียดใบลา">
+      <p>กำลังโหลดข้อมูล...</p>
+    </div>
+
+    <div id="กล่องการดำเนินการ"></div>
+
+    <div id="กล่องความเห็น" style="display:none;">
+      <h2>ความเห็นการอนุมัติ</h2>
+      <div id="รายการความเห็น"></div>
+
+      <div class="form-group">
+        <label for="ข้อความความเห็นใหม่">เขียนความเห็นใหม่</label>
+        <textarea id="ข้อความความเห็นใหม่" rows="3" placeholder="พิมพ์ความเห็นถึงผู้เกี่ยวข้อง"></textarea>
+      </div>
+      <p>
+        <button type="button" class="btn btn-primary" id="ปุ่มส่งความเห็น">ส่งความเห็น</button>
+      </p>
+    </div>
+
+    <p>
+      <a class="btn btn-secondary" href="leave-requests.html">กลับไปหน้ารายการ</a>
+    </p>
+  </div>
+
+  <script defer src="js/util.js"></script>
+  <script defer src="js/nav.js"></script>
+  <script defer src="js/acl.js"></script>
+  <script defer src="js/auth-guard.js"></script>
+  <script type="module" src="js/leave-request-detail.js"></script>
+</body>
+</html>
